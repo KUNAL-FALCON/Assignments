@@ -1,169 +1,180 @@
 #include<bits/stdc++.h>
 using namespace std;
-struct n
+class graph
 {
-    int data;
-    struct n *lt;
-    struct n *rt;
-};
-typedef struct n node;
-struct stac
-{
-    node *add;
-    struct stac *next;
-};
-typedef struct stac stk;
-class tree
-{
-    stk *top;
+    int v;
+    int **cost;
 public:
-    tree(){
-        top = NULL;
-    }
-    void push(node *ptr){
-        stk *temp = new stk;
-        temp->add = ptr;
-        temp->next = NULL;
-        if(top!= NULL)
-            temp->next = top;
-        top = temp;
-    }
-    void pop(){
-        stk *ptr = top;
-        top = top->next;
-        delete ptr;
-    }
-    bool isempty(){
-        if(top == NULL)
-            return true;
-        else
-            return false;
-    }
-    node *create(node *ptr){
-        int x;
-        cout<<"\n1-> Enter Value\t2-> Enter -1 For Null >> ";
-        cin>>x;
-        if(x == -1)
-            return NULL;
+    graph(int v)
+    {
+        this->v = v;
+        cost = new int*[v];
 
-        ptr = new node;
-        ptr->data = x;
-        ptr->lt = ptr->rt = NULL;
-
-        cout<<"\nFor Left Child of "<<x<<"\n";
-        ptr->lt = create(ptr->lt);
-
-        cout<<"\nFor right Child of "<<x<<"\n";
-        ptr->rt = create(ptr->rt);
-
-        return ptr;
-
+        for(int i = 0;i<v;i++)
+            *(cost + i) = new int[v];
+        for(int i=0;i<v;i++)
+        {
+            for(int j=0;j<v;j++)
+                cost[i][j] = 999;
+        }
     }
-    void display(node *ptr){
-        if(ptr == NULL)
+
+    void read_graph()
+    {
+        int src,des;
+        int e;
+        cout<<"Enter The Number Of Edges\n";cin>>e;
+        for(int i=0;i<e;i++)
+        {
+            cout<<"Enter The Source And Destination :: ";
+            cin>>src>>des;
+
+            cout<<"Enter The Cost\n";
+            cin>>cost[src][des];
+
+            cost[des][src] = cost[src][des];
+        }
+    }
+    void print(int from[],int src)
+    {
+        if(src == 0)
+        {
+            cout<<src<<"->";
             return;
-
-        cout<<ptr->data<<" ";
-        this->display(ptr->lt);
-        this->display(ptr->rt);
+        }
+        print(from,from[src]);
+        cout<<src<<"->";
     }
-    void display_leaf(node *ptr){
-       //node *p = ptr;
-       if(ptr == NULL)
-       {
-           cout<<"------Tree Is Empty-----\n";
-           return;
-       }
-       int cnt=0;
-       while(ptr!=NULL){
-            push(ptr);
-            if(ptr->lt == NULL && ptr->rt == NULL){
-                cnt++;
-                cout<<ptr->data<<" ";
-            }
-            //cout<<ptr->data<<" ";
-            ptr = ptr->lt;
-       }
-       while(!isempty()){
-            ptr = top->add;
-            pop();
-            //cout<<ptr->data<<" ";
-            ptr = ptr->rt;
-            while(ptr != NULL){
-                push(ptr);
-                if(ptr->lt == NULL && ptr->rt == NULL){
-                    cnt++;
-                    cout<<ptr->data<<" ";
+    void display(int from[],int distance[])
+    {
+        for(int i=0;i<v;i++){
+            cout<<i<<" ) ";
+            print(from,i);
+            cout<<" ( "<<distance[i]<<" )";
+            cout<<"\n";
+        }
+    }
+    void dijisktra(int strtnode)
+    {
+      
+        int visited[v]={0};
+        int distance[v];
+        int from[v];
+        int src = strtnode;
+        for(int i=0;i<v;i++){
+            from[i] = src;
+            distance[i] = 999;
+        }
+
+
+        visited[src] = 1;
+        distance[src] = 0;
+        int temp;
+        while(1)
+        {
+            
+            visited[src] = 1;
+            for(int i=0;i<v;i++)
+            {
+                if(visited[i] == 0)
+                {
+                    temp = distance[i];
+                    distance[i] = min(distance[i],cost[src][i] + distance[src]);
+                    if(temp!=distance[i])
+                        from[i] = src;
                 }
-                //cout<<ptr->data<<" ";
-                ptr = ptr->lt;
             }
-       }
-       cout<<"\nTotal Count of Leaf Nodes are :: ";
-       cout<<cnt<<"\n";
-    }
-    int depth(node *ptr){
-       if(ptr == NULL)
-       {
-           cout<<"------Tree Is Empty-----\n";
-           return 0;
-       }
-       int len=0;
-       int m = 0;
+            int flag = 0;
+            int m = 999;
 
-       vector<int>v;
-       while(ptr!=NULL){
-            push(ptr);
-            v.push_back(m);
-            m++;
-            ptr = ptr->lt;
-       }
-       if(m>len)
-            len = m;
-       while(!isempty()){
-            ptr = top->add;
-            pop();
-            m = v.back();
-            v.pop_back();
-            m++;
-            ptr = ptr->rt;
-            while(ptr != NULL){
-                push(ptr);
-                v.push_back(m);
-                m++;
-                ptr = ptr->lt;
+            for(int i=0;i<v;i++)
+            {
+                if(visited[i] == 0 &&  distance[i]<m)
+                {
+                    m = distance[i];
+                    flag = 1;
+                    src = i;
+                }
             }
-            if(m>len)
-                len = m;
-       }
-       return len;
-    }
+            if(flag == 0)
+                break;
+            /*else
+                visited[src] = 1;*/
+        }
+        cout<<"\n The Distance Array\n";
+        for(int i=0;i<v;i++)
+            cout<<distance[i]<<"\t";
+        cout<<endl;
 
+        display(from,distance);
+        cout<<endl;
+    }
+    void prim(int src)
+    {
+        int visited[v]={0};
+        int distance[v];
+        int from[v];
+        for(int i=0;i<v;i++)
+        {
+            distance[i] = 999;
+            from[i] = src;
+        }
+        distance[src] = 0;
+        int temp;
+        while(1)
+        {
+            visited[src] = 1;
+            for(int i=0;i<v;i++)
+            {
+                if(visited[i]==0)
+                {
+                    temp = distance[i];
+                    distance[i] = min(distance[i],cost[src][i]);
+                    if(temp != distance[i])
+                        from[i] = src;
+                }
+            }
+            int m = 999,flag = 0;
+            for(int i = 0;i<v;i++)
+            {
+                if(visited[i] == 0 &&  distance[i]<m)
+                {
+                    m = distance[i];
+                    flag = 1;
+                    src = i;
+                }
+            }
+            if(flag == 0)
+                break;
+
+        }
+        int sum = 0;
+        cout<<"\n Distance Matrix\n";
+        for(int i=0;i<v;i++){
+            cout<<distance[i]<<"\t";
+            sum += distance[i];
+        }
+
+        cout<<"\n From Matrix\n";
+        for(int i=0;i<v;i++)
+            cout<<from[i]<<"\t";
+
+        cout<<endl;
+        display(from,distance);
+
+        cout<<"\n The Minimum cost Of the Given Graph is :: "<<sum<<"\n";
+    }
 };
 int main()
 {
-    int ch,x;
-    cout<<"Create Tree\n";
-    node *ptr = NULL;
-    tree t;
-    ptr = t.create(ptr);
+    int v;
+    cout<<"Enter The Number Of Vertex \n";
+    cin>>v;
 
-    do
-    {
-        cout<<"\n1.InOrder Traversal\n2.No.of Leaf Nodes\n3.Height Of tree\n4.Exit\n";
-        cin>>ch;
-        switch(ch)
-        {
-
-            case 1 :cout<<"\nPreOrder Traversal of The tree\n";
-                    t.display(ptr);
-                    break;
-            case 2 :cout<<"\nThe Leaf Nodes in the Tree Are\n";
-                    t.display_leaf(ptr);
-                    break;
-            case 3: cout<<"\nThe Depth of the Tree :: ";
-                    x = t.depth(ptr);
-                    cout<<x-1<<"\n";
-        }
-    }while(ch!=4);
+    graph g(v);
+    g.read_graph();
+    cout<<"\n-------------------Dijikstra Algorithm---------------------\n";
+    g.dijisktra(0);
+    cout<<"\n-------------------Prim-----------------------\n";
+    g.prim(0);
 }
