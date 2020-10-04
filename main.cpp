@@ -1,17 +1,17 @@
 #include<iostream>
 #include<bits/stdc++.h>
 using namespace std;
-struct ll
+typedef struct ll
 {
 	char data;
 	struct ll *next;
-};
+}ll;
 typedef struct ll *node;
-struct nll
+typedef struct nll
 {
 	int data;
 	struct nll *next;
-};
+}ll;
 class stk
 {
 	node top;
@@ -25,14 +25,15 @@ class stk
 		node temp = new struct ll;
 		temp->data = data;
 		temp->next = NULL;
-		if(top!=NULL)
+		if(top!=NULL){
 			temp->next = top;
+		}
 		top = temp;
 	}
 	void pop()
 	{
 		if(top==NULL){
-			cout<<"The Stack is Empty\n";
+			cout<<"The Stack is Empty"<<endl;
 			return;
 		}
 		node ptr = top;
@@ -49,13 +50,6 @@ class stk
 		top = top->next;
 		delete ptr;
 	}
-	/*void stack_top(){
-		if(top==NULL){
-			cout<<"The Stack is Empty\n";
-			return;
-		}
-		cout<<top->data;
-	}*/
 	bool chp(char a,char b)
 	{
 		char op[4] = {'*','/','+','-'};
@@ -186,14 +180,11 @@ int main()
 {
 	stk s1;
 	stac s2;
-	char inf[30],opo[30];
-	char in2[30],opr[30],opr2[30];
-	cout<<"Give The Infix Expression\n";
+	char inf[50],opo[50];
+	char in2[50],opr[50],opr2[50];
+	cout<<"Give The Infix Expression"<<endl;
 	cin>>inf;
-
-
 	int answ1,answ2;
-
 	int ch;
 	do
     {
@@ -224,7 +215,10 @@ int main()
             case 4 :answ2 = s2.evaluate(inf,opr2);
                     cout<<"\nThe answer is :: "<<answ2<<"\n";
                     break;
-                    break;
+            default:{
+                    cout<<"you have enter the wrong no\n";
+            }
+            break;
         }
     }while(ch!=5);
 
