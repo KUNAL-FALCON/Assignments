@@ -37,18 +37,6 @@ int getset(int *p)
     printset(p,&n);
     return n;
 }
-void uni(int *p,int *q,int x,int y)
-{
-    int set3[100],i,j=0;
-    for(i=0;i<x;i++)
-        *(set3+i)=*(p+i);
-    for(i=x;i<(x+y);i++)
-       {
-        *(set3+i) = *(q+j);
-        j++;
-       }
-    printset(set3,i);
-}
 void inter(int *p,int *q,int x,int y)
 {
     int *a,*b;
@@ -136,7 +124,6 @@ int main()
         switch(n)
         {
             case 1: printf("You have entered 1\n");
-                    uni(set1,set2,l1,l2);
                     break;
             case 2: printf("You have entered 2\n");
                     inter(set1,set2,l1,l2);
@@ -157,7 +144,10 @@ int main()
             case 5: printf("You have entered 5\n");
                     printf("Have a Nice day!!!!!!\n\n");
                     break;
-            default:printf("You have Entered incorrect choice\n\n");
+            default:printf("You have Entered incorrect choice\n");
+                    printf("Enter the no again:: ");
+                    break;
         }
     }while(n!=5);
 }
+// program is end here.
