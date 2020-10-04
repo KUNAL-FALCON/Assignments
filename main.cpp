@@ -1,180 +1,231 @@
+#include<iostream>
 #include<bits/stdc++.h>
 using namespace std;
-class graph
+struct ll
 {
-    int v;
-    int **cost;
-public:
-    graph(int v)
-    {
-        this->v = v;
-        cost = new int*[v];
+	char data;
+	struct ll *next;
+};
+typedef struct ll *node;
+struct nll
+{
+	int data;
+	struct nll *next;
+};
+class stk
+{
+	node top;
+	public:
+	stk()
+	{
+		top = NULL;
+	}
+	void push(char data)
+	{
+		node temp = new struct ll;
+		temp->data = data;
+		temp->next = NULL;
+		if(top!=NULL)
+			temp->next = top;
+		top = temp;
+	}
+	void pop()
+	{
+		if(top==NULL){
+			cout<<"The Stack is Empty\n";
+			return;
+		}
+		node ptr = top;
+		top = top->next;
+		delete ptr;
+	}
+	void pop(char *a)
+	{
+		if(top==NULL){
+			return;
+		}
+		node ptr = top;
+		*a = top->data;
+		top = top->next;
+		delete ptr;
+	}
+	/*void stack_top(){
+		if(top==NULL){
+			cout<<"The Stack is Empty\n";
+			return;
+		}
+		cout<<top->data;
+	}*/
+	bool chp(char a,char b)
+	{
+		char op[4] = {'*','/','+','-'};
+		int i;
+		int j;
+		for(i=0;i<4;i++){
+			if(op[i]==a)
+				break;
+		}
+		for(j=0;j<4;j++){
+			if(op[j]==b)
+				break;
+		}
+		if(i<j)
+			return true;
+		else
+			return false;
 
-        for(int i = 0;i<v;i++)
-            *(cost + i) = new int[v];
-        for(int i=0;i<v;i++)
-        {
-            for(int j=0;j<v;j++)
-                cost[i][j] = 999;
+	}
+	void post(char *a,char *b){
+		int i = 0;
+		int k = 0;
+		while(a[i])
+		{
+			if( isalnum(a[i]) )
+				b[k++] = a[i++];
+			else if( a[i] == '(' ){
+				push(a[i++]);
+			}
+			else if( a[i]== ')' ){
+				do
+				{
+					pop(&b[k++]);
+				}while(top->data != '(');
+				pop();
+				i++;
+			}
+			else{
+				if(top == NULL){
+					push(a[i++]);
+				}
+				else if(chp(a[i],top->data))
+					push(a[i++]);
+				else{
+					while(chp(top->data,a[i]))
+					{
+						pop(&b[k++]);
+						if(top == NULL)
+							break;
+					}
+					push(a[i++]);
+				}
+			}
+		}
+		while(top!=NULL){
+			pop(&b[k++]);
+		}
+		b[k]='\0';
+	}
+};
+class stac
+{
+	struct nll *top;
+	public:
+	stac()
+	{
+		top = NULL;
+	}
+	void push(int data)
+	{
+		struct nll *temp = new struct nll;
+		temp->data = data;
+		temp->next = NULL;
+		if(top!=NULL)
+			temp->next = top;
+
+		top = temp;
+	}
+	void pop(int *a)
+	{
+		if(top==NULL){
+			return;
+		}
+		struct nll * ptr = top;
+		*a = top->data;
+		top = top->next;
+		delete ptr;
+	}
+	int evaluate(char *a,char *b)
+	{
+		int freq[26]={0};
+		for(int i=0;i<strlen(a);i++){
+			if( isalnum(a[i]) && freq[a[i]-97]==0)
+			{
+				cout<<"Enter The Value of "<<a[i]<<endl;
+				cin>>freq[a[i]-97];
+			}
+		}
+	int op1=0;
+	int op2=0;
+	int i;
+	for(i=0;i<strlen(b);i++){
+		if( isalnum(b[i]) )
+			push(freq[b[i]-97]);
+		else{
+			pop(&op2);
+			pop(&op1);
+			if(b[i]=='+'){
+				push(op1 + op2);
+			}
+			else if(b[i]=='-'){
+				push(op1 - op2);
+			}
+			else if(b[i]=='*'){
+				push(op1 * op2);
+			}
+			else if(b[i]=='/'){
+				push(op1 / op2);
+			}
         }
     }
-
-    void read_graph()
-    {
-        int src,des;
-        int e;
-        cout<<"Enter The Number Of Edges\n";cin>>e;
-        for(int i=0;i<e;i++)
-        {
-            cout<<"Enter The Source And Destination :: ";
-            cin>>src>>des;
-
-            cout<<"Enter The Cost\n";
-            cin>>cost[src][des];
-
-            cost[des][src] = cost[src][des];
-        }
-    }
-    void print(int from[],int src)
-    {
-        if(src == 0)
-        {
-            cout<<src<<"->";
-            return;
-        }
-        print(from,from[src]);
-        cout<<src<<"->";
-    }
-    void display(int from[],int distance[])
-    {
-        for(int i=0;i<v;i++){
-            cout<<i<<" ) ";
-            print(from,i);
-            cout<<" ( "<<distance[i]<<" )";
-            cout<<"\n";
-        }
-    }
-    void dijisktra(int strtnode)
-    {
-      
-        int visited[v]={0};
-        int distance[v];
-        int from[v];
-        int src = strtnode;
-        for(int i=0;i<v;i++){
-            from[i] = src;
-            distance[i] = 999;
-        }
-
-
-        visited[src] = 1;
-        distance[src] = 0;
-        int temp;
-        while(1)
-        {
-            
-            visited[src] = 1;
-            for(int i=0;i<v;i++)
-            {
-                if(visited[i] == 0)
-                {
-                    temp = distance[i];
-                    distance[i] = min(distance[i],cost[src][i] + distance[src]);
-                    if(temp!=distance[i])
-                        from[i] = src;
-                }
-            }
-            int flag = 0;
-            int m = 999;
-
-            for(int i=0;i<v;i++)
-            {
-                if(visited[i] == 0 &&  distance[i]<m)
-                {
-                    m = distance[i];
-                    flag = 1;
-                    src = i;
-                }
-            }
-            if(flag == 0)
-                break;
-            /*else
-                visited[src] = 1;*/
-        }
-        cout<<"\n The Distance Array\n";
-        for(int i=0;i<v;i++)
-            cout<<distance[i]<<"\t";
-        cout<<endl;
-
-        display(from,distance);
-        cout<<endl;
-    }
-    void prim(int src)
-    {
-        int visited[v]={0};
-        int distance[v];
-        int from[v];
-        for(int i=0;i<v;i++)
-        {
-            distance[i] = 999;
-            from[i] = src;
-        }
-        distance[src] = 0;
-        int temp;
-        while(1)
-        {
-            visited[src] = 1;
-            for(int i=0;i<v;i++)
-            {
-                if(visited[i]==0)
-                {
-                    temp = distance[i];
-                    distance[i] = min(distance[i],cost[src][i]);
-                    if(temp != distance[i])
-                        from[i] = src;
-                }
-            }
-            int m = 999,flag = 0;
-            for(int i = 0;i<v;i++)
-            {
-                if(visited[i] == 0 &&  distance[i]<m)
-                {
-                    m = distance[i];
-                    flag = 1;
-                    src = i;
-                }
-            }
-            if(flag == 0)
-                break;
-
-        }
-        int sum = 0;
-        cout<<"\n Distance Matrix\n";
-        for(int i=0;i<v;i++){
-            cout<<distance[i]<<"\t";
-            sum += distance[i];
-        }
-
-        cout<<"\n From Matrix\n";
-        for(int i=0;i<v;i++)
-            cout<<from[i]<<"\t";
-
-        cout<<endl;
-        display(from,distance);
-
-        cout<<"\n The Minimum cost Of the Given Graph is :: "<<sum<<"\n";
-    }
+	int ans;
+	pop(&ans);
+	return ans;
+	}
 };
 int main()
 {
-    int v;
-    cout<<"Enter The Number Of Vertex \n";
-    cin>>v;
+	stk s1;
+	stac s2;
+	char inf[30],opo[30];
+	char in2[30],opr[30],opr2[30];
+	cout<<"Give The Infix Expression\n";
+	cin>>inf;
 
-    graph g(v);
-    g.read_graph();
-    cout<<"\n-------------------Dijikstra Algorithm---------------------\n";
-    g.dijisktra(0);
-    cout<<"\n-------------------Prim-----------------------\n";
-    g.prim(0);
+
+	int answ1,answ2;
+
+	int ch;
+	do
+    {
+        cout<<"\n1.Infix To Postfix\n2.Infix to Prefix\n3.Postfix Evaluation\n4.Prefix Evaluation\n5.Exit >> ";
+        cin>>ch;
+        switch(ch)
+        {
+            case 1 :s1.post(inf,opo);
+                    cout<<"Postfix Expression for the Given Expression is :: ";
+                    cout<<opo<<"\n";
+                    break;
+            case 2 :strcpy(in2,inf);
+                    strrev(in2);
+                    for(int i=0;i<strlen(inf);i++){
+                        if(in2[i]=='(')
+                            in2[i]=')';
+                        else if(in2[i]==')')
+                            in2[i]='(';
+                    }
+                    s1.post(in2,opr);
+                    strcpy(opr2,opr);
+                    cout<<"Prefix Expression for the Given Infix Expression is :: ";
+                    cout<<strrev(opr)<<"\n";
+                    break;
+            case 3 :answ1 = s2.evaluate(inf,opo);
+                    cout<<"\nThe answer is :: "<<answ1<<"\n";
+                    break;
+            case 4 :answ2 = s2.evaluate(inf,opr2);
+                    cout<<"\nThe answer is :: "<<answ2<<"\n";
+                    break;
+                    break;
+        }
+    }while(ch!=5);
+
 }
